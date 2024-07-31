@@ -2,16 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/eoscanada/eos-go/ecc"
+	"saifas.org/eos-key-generator/keypair"
 )
 
 func main() {
-	pvtKey, err := ecc.NewRandomPrivateKey()
+	keyPair, err := keypair.NewRandomKeyPair()
 	if err != nil {
-		fmt.Println("Failed to create a key")
-		return
+		fmt.Println("Failed to generate a key pair: %w", err)
 	}
 
-	fmt.Println("Private key:", pvtKey.String())
-	fmt.Println("Public key:", pvtKey.PublicKey().String())
+	fmt.Println("Private key:", keyPair.Pvt)
+	fmt.Println("Public key:", keyPair.Pub)
 }
