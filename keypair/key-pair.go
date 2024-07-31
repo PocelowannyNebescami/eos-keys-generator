@@ -1,10 +1,12 @@
 package keypair
 
-import "github.com/eoscanada/eos-go/ecc"
+import (
+	"github.com/eoscanada/eos-go/ecc"
+)
 
 type KeyPair struct {
-	Pub string
-	Pvt string
+	Pub string `json:"pub"`
+	Pvt string `json:"pvt"`
 }
 
 func NewRandomKeyPair() (KeyPair, error) {

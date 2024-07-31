@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"encoding/json"
 
 	"saifas.org/eos-key-generator/keypair"
 )
@@ -14,9 +15,16 @@ func main() {
 			keyPair, err := keypair.NewRandomKeyPair()
 			if err != nil {
 				log.Println("Failed to generate a key pair: %w", err)
+				return // TODO: add status code
 			}
 
-			_, err = w.Write([]byte(keyPair.Pub + " " + keyPair.Pvt))
+			jsonResponse, err := json.Marshal(keyPair)
+			if err != nil {
+				log.Println("Failed to convert key pair to JSON: %w", err)
+				return // TODO: add status code
+			}
+
+			_, err = w.Write(jsonResponse)
 			if err != nil {
 				log.Println(err)
 			}
