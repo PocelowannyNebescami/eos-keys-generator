@@ -1,9 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
-	"encoding/json"
 
 	"saifas.org/eos-key-generator/keypair"
 )
@@ -39,7 +39,7 @@ func main() {
 			_, err = w.Write(jsonResponse)
 			if err != nil {
 				log.Println(err)
-				http.Error( w, "", http.StatusInternalServerError)
+				http.Error(w, "", http.StatusInternalServerError)
 			}
 		},
 	)
