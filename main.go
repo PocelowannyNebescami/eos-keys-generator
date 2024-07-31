@@ -15,21 +15,34 @@ func main() {
 			keyPair, err := keypair.NewRandomKeyPair()
 			if err != nil {
 				log.Println("Failed to generate a key pair: %w", err)
-				return // TODO: add status code
+				http.Error(
+					w,
+					"Key pair was not generated",
+					http.StatusInternalServerError,
+				)
+
+				return
 			}
 
 			jsonResponse, err := json.Marshal(keyPair)
 			if err != nil {
 				log.Println("Failed to convert key pair to JSON: %w", err)
-				return // TODO: add status code
+				http.Error(
+					w,
+					"Response was not formed correctly",
+					http.StatusInternalServerError,
+				)
+
+				return
 			}
 
 			_, err = w.Write(jsonResponse)
 			if err != nil {
 				log.Println(err)
+				http.Error( w, "", http.StatusInternalServerError)
 			}
 		},
 	)
 
-	log.Println(http.ListenAndServe(":9090", nil))
+	log.Fatalln(http.ListenAndServe(":9090", nil))
 }
