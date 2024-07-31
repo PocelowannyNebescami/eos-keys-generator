@@ -1,16 +1,27 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"net/http"
+
 	"saifas.org/eos-key-generator/keypair"
 )
 
 func main() {
-	keyPair, err := keypair.NewRandomKeyPair()
-	if err != nil {
-		fmt.Println("Failed to generate a key pair: %w", err)
-	}
+	http.HandleFunc(
+		"GET /key-pair",
+		func(w http.ResponseWriter, _ *http.Request) {
+			keyPair, err := keypair.NewRandomKeyPair()
+			if err != nil {
+				log.Println("Failed to generate a key pair: %w", err)
+			}
 
-	fmt.Println("Private key:", keyPair.Pvt)
-	fmt.Println("Public key:", keyPair.Pub)
+			_, err = w.Write([]byte(keyPair.Pub + " " + keyPair.Pvt))
+			if err != nil {
+				log.Println(err)
+			}
+		},
+	)
+
+	log.Println(http.ListenAndServe(":9090", nil))
 }
