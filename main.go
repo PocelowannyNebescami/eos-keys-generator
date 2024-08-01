@@ -1,14 +1,21 @@
 package main
 
 import (
-	"encoding/json"
+	"html/template"
 	"log"
 	"net/http"
 
 	"saifas.org/eos-key-generator/keypair"
 )
 
+const indexTemplatePath string = "./views/index.html"
+
 func main() {
+	index, err := template.New("index").ParseFiles(indexTemplatePath)
+	if err != nil {
+		panic("Failed to parse templates: " + err.Error())
+	}
+
 	http.HandleFunc(
 		"GET /key-pair",
 		func(w http.ResponseWriter, _ *http.Request) {
@@ -24,19 +31,18 @@ func main() {
 				return
 			}
 
-			jsonResponse, err := json.Marshal(keyPair)
+			err = index.ExecuteTemplate(w, "keys", keyPair)
 			if err != nil {
-				log.Println("Failed to convert key pair to JSON: %w", err)
-				http.Error(
-					w,
-					"Response was not formed correctly",
-					http.StatusInternalServerError,
-				)
-
-				return
+				log.Println(err)
+				http.Error(w, "", http.StatusInternalServerError)
 			}
+		},
+	)
 
-			_, err = w.Write(jsonResponse)
+	http.HandleFunc(
+		"GET /",
+		func(w http.ResponseWriter, _ *http.Request) {
+			err = index.ExecuteTemplate(w, "index", nil)
 			if err != nil {
 				log.Println(err)
 				http.Error(w, "", http.StatusInternalServerError)
