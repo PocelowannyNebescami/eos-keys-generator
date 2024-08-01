@@ -8,10 +8,8 @@ import (
 	"saifas.org/eos-key-generator/keypair"
 )
 
-const indexTemplatePath string = "./views/index.html"
-
 func main() {
-	index, err := template.New("index").ParseFiles(indexTemplatePath)
+	allTemplates, err := template.New("all").ParseGlob("./views/templates/*")
 	if err != nil {
 		panic("Failed to parse templates: " + err.Error())
 	}
@@ -31,7 +29,7 @@ func main() {
 				return
 			}
 
-			err = index.ExecuteTemplate(w, "keys", keyPair)
+			err = allTemplates.ExecuteTemplate(w, "keys", keyPair)
 			if err != nil {
 				log.Println(err)
 				http.Error(w, "", http.StatusInternalServerError)
@@ -39,16 +37,7 @@ func main() {
 		},
 	)
 
-	http.HandleFunc(
-		"GET /",
-		func(w http.ResponseWriter, _ *http.Request) {
-			err = index.ExecuteTemplate(w, "index", nil)
-			if err != nil {
-				log.Println(err)
-				http.Error(w, "", http.StatusInternalServerError)
-			}
-		},
-	)
+	http.Handle("GET /", http.FileServer(http.Dir("./views/dist")))
 
 	log.Fatalln(http.ListenAndServe(":9090", nil))
 }
