@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"saifas.org/eos-key-generator/keypair"
+	"github.com/PocelowannyNebescami/eos-keys-generator/keypair"
 )
 
 func main() {

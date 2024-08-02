@@ -1,4 +1,4 @@
-module saifas.org/eos-key-generator
+module github.com/PocelowannyNebescami/eos-keys-generator
 
 go 1.22.0
 
