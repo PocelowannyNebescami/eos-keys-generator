@@ -5,11 +5,12 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/PocelowannyNebescami/eos-keys-generator/keypair"
+	"github.com/PocelowannyNebescami/eos-keys-generator/internal/keypair"
 )
 
 func main() {
-	allTemplates, err := template.New("all").ParseGlob("./views/templates/*")
+	// TODO: fix templates parsing
+	allTemplates, err := template.New("all").ParseGlob("*.html")
 	if err != nil {
 		panic("Failed to parse templates: " + err.Error())
 	}
@@ -37,6 +38,7 @@ func main() {
 		},
 	)
 
+	// TODO: fix
 	http.Handle("GET /", http.FileServer(http.Dir("./views/dist")))
 
 	log.Fatalln(http.ListenAndServe(":9090", nil))
