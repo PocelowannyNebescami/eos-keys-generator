@@ -3,15 +3,17 @@ package server
 import (
 	"log"
 	"net/http"
+	"html/template"
 
 	"github.com/PocelowannyNebescami/eos-keys-generator/internal/keypair"
+	"github.com/PocelowannyNebescami/eos-keys-generator/cmd/web"
 )
 
 func (server *Server) RegisterRoutes() http.Handler {
 	mux := http.NewServeMux()
 
-	// TODO: render index page
-	http.Handle("GET /", http.FileServer(http.Dir("")))
+
+	mux.Handle("GET /", http.FileServerFS(web.Pages))
 
 	mux.HandleFunc("GET /key-pair", server.handleKeyPair)
 
@@ -19,9 +21,9 @@ func (server *Server) RegisterRoutes() http.Handler {
 }
 
 func (server *Server) handleKeyPair(w http.ResponseWriter, _ *http.Request) {
-	_, err := keypair.NewRandomKeyPair()
+	keyPair, err := keypair.NewRandomKeyPair()
 	if err != nil {
-		log.Println("Failed to generate a key pair: %w", err)
+		log.Println("Failed to generate a key pair:", err)
 		http.Error(
 			w,
 			"Key pair was not generated",
@@ -31,6 +33,25 @@ func (server *Server) handleKeyPair(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 
-	// TODO: render template with a key pair
-	http.Error(w, "", http.StatusNotImplemented)
+	tmpl, err := template.New("keys").ParseFS(web.Pages, "*.html")
+	if err != nil {
+		log.Println("Failed to parse templates:", err)
+		http.Error(
+			w,
+			"Failed to render the answer",
+			http.StatusInternalServerError,
+		)
+
+		return
+	}
+
+	err = tmpl.ExecuteTemplate(w, "keys", keyPair)
+	if err != nil {
+		log.Println("Failed to execute template:", err)
+		http.Error(
+			w,
+			"Failed to render the answer",
+			http.StatusInternalServerError,
+		)
+	}
 }
