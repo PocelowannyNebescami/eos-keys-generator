@@ -1,17 +1,16 @@
 package server
 
 import (
+	"html/template"
 	"log"
 	"net/http"
-	"html/template"
 
-	"github.com/PocelowannyNebescami/eos-keys-generator/internal/keypair"
 	"github.com/PocelowannyNebescami/eos-keys-generator/cmd/web"
+	"github.com/PocelowannyNebescami/eos-keys-generator/internal/keypair"
 )
 
 func (server *Server) RegisterRoutes() http.Handler {
 	mux := http.NewServeMux()
-
 
 	mux.Handle("GET /", http.FileServerFS(web.Pages))
 
