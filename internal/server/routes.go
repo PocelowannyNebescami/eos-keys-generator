@@ -6,12 +6,13 @@ import (
 
 	"github.com/PocelowannyNebescami/eos-keys-generator/cmd/web"
 	"github.com/PocelowannyNebescami/eos-keys-generator/internal/keypair"
+	"github.com/a-h/templ"
 )
 
 func (server *Server) RegisterRoutes() http.Handler {
 	mux := http.NewServeMux()
 
-	mux.Handle("GET /", http.FileServerFS(web.Pages))
+	mux.Handle("GET /", templ.Handler(web.Index()))
 
 	mux.HandleFunc("GET /key-pair", server.handleKeyPair)
 
