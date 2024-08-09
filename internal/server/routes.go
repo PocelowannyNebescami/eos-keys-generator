@@ -1,7 +1,6 @@
 package server
 
 import (
-	"html/template"
 	"log"
 	"net/http"
 
@@ -19,7 +18,7 @@ func (server *Server) RegisterRoutes() http.Handler {
 	return mux
 }
 
-func (server *Server) handleKeyPair(w http.ResponseWriter, _ *http.Request) {
+func (server *Server) handleKeyPair(w http.ResponseWriter, r *http.Request) {
 	keyPair, err := keypair.NewRandomKeyPair()
 	if err != nil {
 		log.Println("Failed to generate a key pair:", err)
@@ -32,21 +31,10 @@ func (server *Server) handleKeyPair(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 
-	tmpl, err := template.New("keys").ParseFS(web.Pages, "*.html")
+	keyComponent := web.Keys(keyPair)
+	err = keyComponent.Render(r.Context(), w)
 	if err != nil {
-		log.Println("Failed to parse templates:", err)
-		http.Error(
-			w,
-			"Failed to render the answer",
-			http.StatusInternalServerError,
-		)
-
-		return
-	}
-
-	err = tmpl.ExecuteTemplate(w, "keys", keyPair)
-	if err != nil {
-		log.Println("Failed to execute template:", err)
+		log.Println("Failed to render the template:", err)
 		http.Error(
 			w,
 			"Failed to render the answer",

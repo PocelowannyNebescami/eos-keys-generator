@@ -1,0 +1,9 @@
+package web
+
+import "github.com/PocelowannyNebescami/eos-keys-generator/internal/keypair"
+
+templ Keys(pair keypair.KeyPair) {
+    Private key: <span>{ pair.Pvt }</span>
+    <br>
+    Public key: <span>{ pair.Pub }</span>
+}
