@@ -16,6 +16,8 @@ func (server *Server) RegisterRoutes() http.Handler {
 
 	mux.HandleFunc("GET /key-pair", server.handleKeyPair)
 
+	mux.Handle("GET /assets/", http.FileServerFS(web.Assets))
+
 	return mux
 }
 
