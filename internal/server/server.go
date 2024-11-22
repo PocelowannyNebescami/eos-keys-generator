@@ -15,7 +15,7 @@ type Server struct {
 func NewServer() *http.Server {
 	port, err := strconv.Atoi(os.Getenv("PORT"))
 	if err != nil {
-		port = 9090
+		port = 8080
 	}
 	NewServer := &Server{
 		port: uint16(port),
