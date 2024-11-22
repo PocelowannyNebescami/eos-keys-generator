@@ -1,35 +1,46 @@
-# BUILD
-FROM golang:1.22 AS builder
-
-RUN go install github.com/a-h/templ/cmd/templ@v0.2.747
-
-RUN dpkgArch="$(dpkg --print-architecture)"; \
-    case "${dpkgArch##*-}" in \
-        amd64) tailArch='linux-x64' ;; \
-        arm64) tailArch='linux-arm64' ;; \
-        *) echo >&2; echo >&2 "Uknown architecture ${dpkgArch}"; exit 1 ;; \
-    esac; \
-    wget https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.15/tailwindcss-${tailArch}; \
-    chmod +x tailwindcss-${tailArch}; \
-    mv tailwindcss-${tailArch} /usr/bin/tailwindcss;
+FROM golang:1.22 AS fetch
 
 WORKDIR /app
 
 ADD go.mod go.sum ./
 
-RUN go mod download && go mod verify
+RUN go mod download && go mod verify;
+
+FROM node:18-bookworm AS tailwind
+
+RUN npm install -g tailwindcss@3.4.15;
+
+WORKDIR /app
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux make build
+RUN tailwindcss -i ./cmd/web/assets/css/input.css -o ./output.css;
+
+FROM ghcr.io/a-h/templ:latest AS templ
+
+COPY --chown=65532:65532 . /app
+
+WORKDIR /app
+
+RUN ["templ", "generate"]
+
+FROM fetch AS build
+
+COPY --from=tailwind /app/output.css /app/cmd/web/assets/css/output.css
+
+COPY --from=templ /app /app
+
+WORKDIR /app
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o main cmd/api/main.go
 
 # DEPLOY
 FROM alpine
 
 WORKDIR /build
 
-COPY --from=builder /app/main ./main
+COPY --from=build /app/main ./main
 
 EXPOSE 9090
 
-CMD ["./main"]
+ENTRYPOINT ["./main"]
