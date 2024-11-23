@@ -41,6 +41,6 @@ WORKDIR /build
 
 COPY --from=build /app/main ./main
 
-EXPOSE 9090
+EXPOSE 8080
 
 ENTRYPOINT ["./main"]

@@ -24,7 +24,7 @@ tmp/
 .env
 
 # Project build
-**/*.templ.go
+**/*_templ.go
 **/output.css
 
 # Git
